@@ -41,6 +41,12 @@ class OrderController extends BaseController {
         "source" => $token, // obtained with Stripe.js
         "description" => "First test charge!"
       ));
+      
+      
+      $this->get('shopping_cart')->emptyCart();
+      $this->addFlash('success', 'Order Complete! Yay!');
+      
+      return $this->redirectToRoute('homepage');
     }
     
     return $this->render('order/checkout.html.twig', array(
