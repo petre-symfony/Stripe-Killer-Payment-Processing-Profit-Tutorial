@@ -6,6 +6,7 @@ use AppBundle\Entity\Product;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 class OrderController extends BaseController
 {
@@ -31,6 +32,10 @@ class OrderController extends BaseController
     {
         $products = $this->get('shopping_cart')->getProducts();
 
+        if ($request->isMethod('POST')){
+          dump($request->get('stripeToken'));
+        }
+        
         return $this->render('order/checkout.html.twig', array(
             'products' => $products,
             'cart' => $this->get('shopping_cart')
