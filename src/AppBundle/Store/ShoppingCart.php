@@ -6,82 +6,75 @@ use AppBundle\Entity\Product;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-class ShoppingCart
-{
-    const CART_PRODUCTS_KEY = '_shopping_cart.products';
+class ShoppingCart {
+  const CART_PRODUCTS_KEY = '_shopping_cart.products';
 
-    private $session;
-    private $em;
+  private $session;
+  private $em;
 
-    private $products;
+  private $products;
 
-    public function __construct(Session $session, EntityManager $em)
-    {
-        $this->session = $session;
-        $this->em = $em;
+  public function __construct(Session $session, EntityManager $em){
+    $this->session = $session;
+    $this->em = $em;
+  }
+
+  public function addProduct(Product $product){
+    $products = $this->getProducts();
+
+    if (!in_array($product, $products)) {
+      $products[] = $product;
     }
 
-    public function addProduct(Product $product)
-    {
-        $products = $this->getProducts();
+    $this->updateProducts($products);
+  }
 
-        if (!in_array($product, $products)) {
-            $products[] = $product;
+  /**
+   * @return Product[]
+   */
+  public function getProducts(){
+    if ($this->products === null) {
+      $productRepo = $this->em->getRepository('AppBundle:Product');
+      $ids = $this->session->get(self::CART_PRODUCTS_KEY, []);
+      $products = [];
+      foreach ($ids as $id) {
+        $product = $productRepo->find($id);
+
+        // in case a product becomes deleted
+        if ($product) {
+          $products[] = $product;
         }
+      }
 
-        $this->updateProducts($products);
+      $this->products = $products;
     }
 
-    /**
-     * @return Product[]
-     */
-    public function getProducts()
-    {
-        if ($this->products === null) {
-            $productRepo = $this->em->getRepository('AppBundle:Product');
-            $ids = $this->session->get(self::CART_PRODUCTS_KEY, []);
-            $products = [];
-            foreach ($ids as $id) {
-                $product = $productRepo->find($id);
+    return $this->products;
+  }
 
-                // in case a product becomes deleted
-                if ($product) {
-                    $products[] = $product;
-                }
-            }
-
-            $this->products = $products;
-        }
-
-        return $this->products;
+  public function getTotal(){
+    $total = 0;
+    foreach ($this->getProducts() as $product) {
+      $total += $product->getPrice();
     }
 
-    public function getTotal()
-    {
-        $total = 0;
-        foreach ($this->getProducts() as $product) {
-            $total += $product->getPrice();
-        }
+    return $total;
+  }
 
-        return $total;
-    }
+  public function emptyCart(){
+    $this->updateProducts([]);
+  }
 
-    public function emptyCart()
-    {
-        $this->updateProducts([]);
-    }
+  /**
+   * @param Product[] $products
+   */
+  private function updateProducts(array $products){
+    $this->products = $products;
 
-    /**
-     * @param Product[] $products
-     */
-    private function updateProducts(array $products)
-    {
-        $this->products = $products;
+    $ids = array_map(function(Product $item) {
+      return $item->getId();
+    }, $products);
 
-        $ids = array_map(function(Product $item) {
-            return $item->getId();
-        }, $products);
-
-        $this->session->set(self::CART_PRODUCTS_KEY, $ids);
-    }
+    $this->session->set(self::CART_PRODUCTS_KEY, $ids);
+  }
 }
