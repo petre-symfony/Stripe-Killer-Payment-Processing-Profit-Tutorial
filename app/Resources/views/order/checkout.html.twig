@@ -36,7 +36,7 @@
         <form action="" method="POST">
           <script
             src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-            data-key="pk_test_189g9J2eZvKYlo2CIDZ2DAhh"
+            data-key="{{ stripe_public_key }}"
             data-amount="{{ cart.total * 100 }}"
             data-name="Demo Site"
             data-description="2 widgets"
