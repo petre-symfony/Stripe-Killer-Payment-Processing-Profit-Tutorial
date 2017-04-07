@@ -57,7 +57,7 @@ class OrderController extends BaseController {
       \Stripe\Charge::create(array(
         "amount" => $this->get('shopping_cart')->getTotal() * 100,
         "currency" => "usd",
-        "source" => $token, // obtained with Stripe.js
+        "customer" => $user->getStripeCustomerId(),
         "description" => "First test charge!"
       ));
       
