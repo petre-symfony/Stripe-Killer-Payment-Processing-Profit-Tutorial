@@ -41,11 +41,9 @@ class OrderController extends BaseController {
       $user = $this->getUser();
       $stripeClient = $this->get('stripe_client');
       if (!$user->getStripeCustomerId()){
-       $stripeClient->createCustomer($user, $token); 
+        $stripeClient->createCustomer($user, $token); 
       } else {
-        $customer = \Stripe\Customer::retrieve($user->getStripeCustomerId());
-        $customer->source = $token;
-        $customer->save();
+        $stripeClient->updateCustomerCard($user, $token);
       }
       
       foreach($this->get('shopping_cart')->getProducts() as $product){
