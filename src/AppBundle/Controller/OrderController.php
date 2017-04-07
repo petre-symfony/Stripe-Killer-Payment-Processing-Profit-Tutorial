@@ -3,10 +3,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
+use AppBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+
 
 
 class OrderController extends BaseController {
@@ -34,6 +36,15 @@ class OrderController extends BaseController {
       $token = $request->get('stripeToken');
       
       \Stripe\Stripe::setApiKey($this->getParameter('stripe_secret_key'));
+      
+      /** @var User @user */
+      $user = $this->getUser();
+      if (!$user->getStripeCustomerId()){
+        $customer = \Stripe\Customer::create([
+          'email' => $user->getEmail(),
+          'source' => $token  
+        ]);   
+      }
       
       \Stripe\Charge::create(array(
         "amount" => $this->get('shopping_cart')->getTotal() * 100,
