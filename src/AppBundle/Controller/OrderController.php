@@ -39,15 +39,9 @@ class OrderController extends BaseController {
       
       /** @var User @user */
       $user = $this->getUser();
+      $stripeClient = $this->get('stripe_client');
       if (!$user->getStripeCustomerId()){
-        $customer = \Stripe\Customer::create([
-          'email' => $user->getEmail(),
-          'source' => $token  
-        ]);
-        $user->setStripeCustomerId($customer->id);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+       $stripeClient->createCustomer($user, $token); 
       } else {
         $customer = \Stripe\Customer::retrieve($user->getStripeCustomerId());
         $customer->source = $token;
