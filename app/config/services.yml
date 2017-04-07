@@ -7,3 +7,6 @@ services:
   shopping_cart:
     class: AppBundle\Store\ShoppingCart
     autowire: true
+  stripe_client:
+    class: AppBundle\StripeClient
+    autowire: true
