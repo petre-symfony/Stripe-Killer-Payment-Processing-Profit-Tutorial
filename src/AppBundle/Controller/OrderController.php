@@ -54,13 +54,14 @@ class OrderController extends BaseController {
         $customer->save();
       }
       
-      \Stripe\InvoiceItem::create(array(
-        "amount" => $this->get('shopping_cart')->getTotal() * 100,
-        "currency" => "usd",
-        "customer" => $user->getStripeCustomerId(),
-        "description" => "First test charge!"
-      ));
-      
+      foreach($this->get('shopping_cart')->getProducts() as $product){
+        \Stripe\InvoiceItem::create(array(
+          "amount" => $product->getPrice() * 100,
+          "currency" => "usd",
+          "customer" => $user->getStripeCustomerId(),
+          "description" => $product->getName()
+        ));
+      }
       $invoice = \Stripe\Invoice::create(array(
         'customer' => $user->getStripeCustomerId(),    
       ));
