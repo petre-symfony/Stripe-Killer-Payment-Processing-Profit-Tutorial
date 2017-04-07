@@ -33,4 +33,24 @@ class StripeClient {
     $customer->source = $paymentToken;
     $customer->save();
   }
+  
+  public function createInvoiceItem($amount,User $user, $description){
+    return \Stripe\InvoiceItem::create(array(
+      "amount" => $amount,
+      "currency" => "usd",
+      "customer" => $user->getStripeCustomerId(),
+      "description" => $description
+    ));
+  }
+  
+  public function createInvoice(User $user, $payImmediatelly = true){
+    $invoice = \Stripe\Invoice::create(array(
+      'customer' => $user->getStripeCustomerId(),    
+    ));
+    if ($payImmediatelly){
+      $invoice->pay();
+    }
+    
+    return $invoice;
+  }
 }
