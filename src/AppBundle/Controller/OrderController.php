@@ -43,7 +43,11 @@ class OrderController extends BaseController {
         $customer = \Stripe\Customer::create([
           'email' => $user->getEmail(),
           'source' => $token  
-        ]);   
+        ]);
+        $user->setStripeCustomerId($customer->id);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
       }
       
       \Stripe\Charge::create(array(
