@@ -35,8 +35,6 @@ class OrderController extends BaseController {
     if ($request->isMethod('POST')){
       $token = $request->get('stripeToken');
       
-      \Stripe\Stripe::setApiKey($this->getParameter('stripe_secret_key'));
-      
       /** @var User @user */
       $user = $this->getUser();
       $stripeClient = $this->get('stripe_client');

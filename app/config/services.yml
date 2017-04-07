@@ -10,3 +10,4 @@ services:
   stripe_client:
     class: AppBundle\StripeClient
     autowire: true
+    arguments: ['%stripe_secret_key%']
