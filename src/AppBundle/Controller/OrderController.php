@@ -41,15 +41,19 @@ class OrderController extends BaseController {
       } catch (\Stripe\Error\Card $e) {
         $error = 'There was a problem charging your card: ' . $e->getMessage();   
       }
-      $this->get('shopping_cart')->emptyCart();
-      $this->addFlash('success', 'Order Complete! Yay!');
       
-      return $this->redirectToRoute('homepage');
+      if (!$error){
+        $this->get('shopping_cart')->emptyCart();
+        $this->addFlash('success', 'Order Complete! Yay!');
+
+        return $this->redirectToRoute('homepage');
+      }
     }
     return $this->render('order/checkout.html.twig', array(
       'products' => $products,
       'cart' => $this->get('shopping_cart'),
-      'stripe_public_key' => $this->getParameter('stripe_public_key') 
+      'stripe_public_key' => $this->getParameter('stripe_public_key'),
+      'error' => $error  
     ));
 
   }
